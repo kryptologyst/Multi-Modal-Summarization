@@ -1,0 +1,110 @@
+# Multi-modal Summarization Configuration
+
+# Model Configuration
+model:
+  text_summarizer:
+    name: "facebook/bart-large-cnn"
+    max_length: 100
+    min_length: 30
+    do_sample: false
+    temperature: 1.0
+  
+  image_captioner:
+    name: "Salesforce/blip-image-captioning-base"
+    max_length: 50
+    min_length: 10
+    do_sample: true
+    temperature: 0.7
+  
+  fusion:
+    method: "late"  # Options: early, late, cross_attention
+    attention_heads: 8
+    hidden_dim: 512
+
+# Data Configuration
+data:
+  max_text_length: 1024
+  image_size: 224
+  batch_size: 8
+  num_workers: 4
+  
+  # Dataset paths
+  train_data: "data/train.json"
+  val_data: "data/val.json"
+  test_data: "data/test.json"
+  
+  # Image preprocessing
+  image_mean: [0.485, 0.456, 0.406]
+  image_std: [0.229, 0.224, 0.225]
+
+# Training Configuration
+training:
+  learning_rate: 1e-4
+  weight_decay: 0.01
+  num_epochs: 10
+  warmup_steps: 100
+  gradient_clip_norm: 1.0
+  save_every: 1000
+  eval_every: 500
+  
+  # Mixed precision
+  use_amp: true
+  
+  # Checkpointing
+  save_dir: "checkpoints"
+  resume_from: null
+
+# Evaluation Configuration
+evaluation:
+  metrics:
+    - "rouge"
+    - "bleu"
+    - "bert_score"
+    - "meteor"
+    - "cider"
+  
+  rouge_types: ["rouge1", "rouge2", "rougeL"]
+  bleu_n: [1, 2, 3, 4]
+  
+  # Generation parameters
+  max_length: 150
+  min_length: 20
+  num_beams: 4
+  early_stopping: true
+
+# Device Configuration
+device:
+  type: "auto"  # Options: auto, cuda, mps, cpu
+  fallback_to_cpu: true
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  log_dir: "logs"
+  log_every: 100
+  use_tensorboard: true
+  use_wandb: false
+  
+  # Wandb configuration (if enabled)
+  wandb:
+    project: "multimodal-summarization"
+    entity: null
+    tags: ["multimodal", "summarization", "nlp", "vision"]
+
+# Demo Configuration
+demo:
+  interface: "streamlit"  # Options: streamlit, gradio
+  port: 8501
+  host: "localhost"
+  max_file_size: 10  # MB
+  
+  # Safety settings
+  enable_safety_filters: true
+  max_text_length: 2000
+  allowed_image_formats: ["jpg", "jpeg", "png", "bmp", "tiff"]
+
+# Reproducibility
+seed: 42
+deterministic: true
+cudnn_benchmark: false
+cudnn_deterministic: true
